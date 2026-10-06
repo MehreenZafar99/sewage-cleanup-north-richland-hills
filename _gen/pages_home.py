@@ -116,12 +116,7 @@ def build_home(doc: dict, meta: dict) -> str:
     </div>
   </section>'''
 
-    brand_strip = '''<section class="brand-strip">
-    <div class="shell brand-strip-inner">
-      <p>Equipped for Category 3 sewage response</p>
-      <div><span>EXTRACTORS</span><span>AIR MOVERS</span><span>DEHUMIDIFIERS</span><span>EPA DISINFECTANTS</span><span>PPE</span></div>
-    </div>
-  </section>'''
+    brand_strip = ''
 
     why = f'''<section class="section why-section">
     <div class="shell">
@@ -237,7 +232,7 @@ def build_home(doc: dict, meta: dict) -> str:
   </section>'''
 
     body = "\n".join([
-        hero, trust_strip(), about1, services_blk, brand_strip, why, problems, about2,
+        hero, trust_strip(), about1, services_blk, why, problems, about2,
         process_html, emergency, areas_html, faq_html,
         cta_band("Sewage problem in North Richland Hills?", f"Call {PHONE_DISPLAY} any time, day or night."),
         contact_section(), newsletter,
