@@ -44,40 +44,69 @@ def write_checklist():
     lines = [
         "# Image Checklist — Sewage Fix Pros (NRH)\n\n",
         "Replace each placeholder `div.img-placeholder` with a real WebP/JPEG at the suggested path.\n\n",
+        "Pages share a small reusable library of **12** files under `assets/images/*.webp`.\n\n",
     ]
     seen = set()
     unique = []
+    pages_by_file: dict[str, list[str]] = {}
     for s in IMAGE_SLOTS:
-        if s["slot"] in seen:
+        key = s["suggested"]
+        pages_by_file.setdefault(key, [])
+        if s["page"] not in pages_by_file[key]:
+            pages_by_file[key].append(s["page"])
+        if key in seen:
             continue
-        seen.add(s["slot"])
+        seen.add(key)
         unique.append(s)
-    lines.append(f"Total slots: **{len(unique)}**\n\n")
-    lines.append("| # | Suggested file | Page | Subject | Aspect |\n")
-    lines.append("|---|----------------|------|---------|--------|\n")
+    lines.append(f"Total unique files: **{len(unique)}**\n\n")
+    lines.append("| # | Suggested file | Example page | Subject | Aspect |\n")
+    lines.append("|---|----------------|--------------|---------|--------|\n")
     for i, s in enumerate(unique, 1):
         lines.append(f"| {i} | `{s['suggested']}` | {s['page']} | {s['subject']} | {s['aspect']} |\n")
 
-    cats = {"Hero": 0, "About/stack": 0, "Service card": 0, "Process": 0, "Emergency/CTA": 0, "Detail/area": 0, "Other": 0}
+    cats = {"Hero": 0, "Portrait": 0, "Service card": 0, "Process": 0, "Detail": 0, "Other": 0}
     for s in unique:
         slot = s["slot"]
         if "hero" in slot:
             cats["Hero"] += 1
-        elif "about" in slot or "what-matters" in slot or "team" in slot:
-            cats["About/stack"] += 1
-        elif "card" in slot or slot.startswith("home-service") or slot.startswith("services-card"):
+        elif "portrait" in slot:
+            cats["Portrait"] += 1
+        elif "card" in slot:
             cats["Service card"] += 1
         elif "process" in slot:
             cats["Process"] += 1
-        elif "emergency" in slot or "banner" in slot:
-            cats["Emergency/CTA"] += 1
-        elif "detail" in slot or "area-" in slot:
-            cats["Detail/area"] += 1
+        elif "detail" in slot:
+            cats["Detail"] += 1
         else:
             cats["Other"] += 1
     lines.append("\n## Categories\n\n")
     for k, v in cats.items():
         lines.append(f"- **{k}:** {v}\n")
+
+    lines.append("\n## Reuse map\n\n")
+    lines.append("Each file is reused across many pages/slots. Place the photo once; every matching placeholder points at the same path.\n\n")
+    reuse_notes = {
+        "shared-hero.webp": "Default page heroes (home, about, contact, services, areas, most service & area heroes, legal)",
+        "shared-hero-emergency.webp": "Emergency banner + emergency-sewage-cleanup hero",
+        "shared-portrait.webp": "About/image stacks, about-team, service-about portraits",
+        "shared-portrait-ppe.webp": "Containment/PPE (home-what-matters)",
+        "shared-process.webp": "All process sections sitewide (+ non-mapped service cards)",
+        "shared-card-backup.webp": "Sewage backup service cards",
+        "shared-card-emergency.webp": "Emergency service cards",
+        "shared-card-toilet.webp": "Toilet overflow / bathroom-related cards",
+        "shared-detail-extraction.webp": "Detail shot 0 (index % 4)",
+        "shared-detail-removal.webp": "Detail shot 1 (index % 4)",
+        "shared-detail-disinfect.webp": "Detail shot 2 (index % 4)",
+        "shared-detail-drying.webp": "Detail shot 3 (index % 4)",
+    }
+    for s in unique:
+        name = Path(s["suggested"]).name
+        note = reuse_notes.get(name, "")
+        pages = ", ".join(pages_by_file[s["suggested"]][:8])
+        more = len(pages_by_file[s["suggested"]]) - 8
+        page_note = pages + (f", …(+{more} more)" if more > 0 else "")
+        lines.append(f"- **`{s['suggested']}`** — {note}. Pages: {page_note}\n")
+
     lines.append("\n## Notes\n\n")
     lines.append("- Accent brand color is orange `#f15a1b`—avoid blue-tinted stock.\n")
     lines.append("- Prefer real NRH crew / Category 3 PPE / extraction equipment photography.\n")

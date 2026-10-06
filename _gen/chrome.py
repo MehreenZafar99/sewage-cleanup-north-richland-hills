@@ -10,16 +10,16 @@ from mdutil import (
 )
 
 
-def placeholder(label: str, slot: str, page: str, subject: str, aspect: str = "16:9", min_h: str = "280px", extra_class: str = "") -> str:
+def placeholder(label: str, file: str, page: str, subject: str, aspect: str = "16:9", min_h: str = "280px", extra_class: str = "") -> str:
     IMAGE_SLOTS.append({
-        "slot": slot, "page": page, "subject": subject,
-        "aspect": aspect, "suggested": f"assets/images/{slot}.webp",
+        "slot": file, "page": page, "subject": subject,
+        "aspect": aspect, "suggested": f"assets/images/{file}.webp",
     })
     cls = f"img-placeholder {extra_class}".strip()
     return (
-        f'<div class="{cls}" data-image-slot="{esc(slot)}" data-image-path="assets/images/{esc(slot)}.webp" '
+        f'<div class="{cls}" data-image-slot="{esc(file)}" data-image-path="assets/images/{esc(file)}.webp" '
         f'style="min-height:{min_h};" role="img" aria-label="{esc(subject)}">'
-        f'<div>{esc(label)}<small>Image needed · {esc(aspect)} · assets/images/{esc(slot)}.webp</small></div></div>'
+        f'<div>{esc(label)}<small>Image needed · {esc(aspect)} · assets/images/{esc(file)}.webp</small></div></div>'
     )
 
 
@@ -177,8 +177,9 @@ def contact_section(copy: str | None = None) -> str:
   </section>'''
 
 
-def location_hero(h1: str, lead: str, crumbs: list, eyebrow: str, page: str, slot: str, show_actions: bool = True, snapshot: str = "") -> str:
-    IMAGE_SLOTS.append({"slot": slot, "page": page, "subject": f"Hero: {h1}", "aspect": "21:9", "suggested": f"assets/images/{slot}.webp"})
+def location_hero(h1: str, lead: str, crumbs: list, eyebrow: str, page: str, show_actions: bool = True, snapshot: str = "") -> str:
+    file = "shared-hero-emergency" if "emergency" in page else "shared-hero"
+    IMAGE_SLOTS.append({"slot": file, "page": page, "subject": f"Hero: {h1}", "aspect": "21:9", "suggested": f"assets/images/{file}.webp"})
     crumb_html = []
     for i, (href, label) in enumerate(crumbs):
         if i:
@@ -194,8 +195,8 @@ def location_hero(h1: str, lead: str, crumbs: list, eyebrow: str, page: str, slo
             <a class="location-call-link" href="tel:{PHONE_TEL}"><small>Talk to a pro</small><strong class="phone-nowrap">{PHONE_DISPLAY}</strong></a>
           </div>'''
     return f'''<section class="location-hero">
-      <div class="location-hero-image img-placeholder" data-image-slot="{esc(slot)}" data-image-path="assets/images/{esc(slot)}.webp" style="min-height:100%;" role="img" aria-label="{esc(h1)}">
-        <div>Hero: {esc(h1)}<small>Image needed · 21:9 · assets/images/{esc(slot)}.webp</small></div>
+      <div class="location-hero-image img-placeholder" data-image-slot="{esc(file)}" data-image-path="assets/images/{esc(file)}.webp" style="min-height:100%;" role="img" aria-label="{esc(h1)}">
+        <div>Hero: {esc(h1)}<small>Image needed · 21:9 · assets/images/{esc(file)}.webp</small></div>
       </div>
       <div class="location-hero-overlay"></div>
       <div class="shell location-hero-inner">
@@ -211,7 +212,7 @@ def location_hero(h1: str, lead: str, crumbs: list, eyebrow: str, page: str, slo
     </section>'''
 
 
-def process_section(title: str, steps: list, page: str, slot: str) -> str:
+def process_section(title: str, steps: list, page: str, slot: str | None = None) -> str:
     if not steps:
         return ""
     articles = []
@@ -224,7 +225,7 @@ def process_section(title: str, steps: list, page: str, slot: str) -> str:
         )
     first_name, first_desc = steps[0]
     pct = 100 / max(len(steps), 1)
-    ph = placeholder("Process: crew at work", slot, page, "Technicians performing sewage cleanup", "4:3", "480px")
+    ph = placeholder("Process: crew at work", "shared-process", page, "Technicians performing sewage cleanup", "4:3", "480px")
     return f'''<section class="section process-section" id="process">
     <div class="shell process-layout">
       <div class="process-copy">

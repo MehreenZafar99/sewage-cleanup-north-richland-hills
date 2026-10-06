@@ -26,10 +26,10 @@ def build_home(doc: dict, meta: dict) -> str:
     who_sec = find_section(sections, "who we")
     do_sec = find_section(sections, "what to do")
 
-    IMAGE_SLOTS.append({"slot": "home-hero-crew", "page": page, "subject": "Sewage cleanup crew / NRH emergency response", "aspect": "21:9", "suggested": "assets/images/home-hero-crew.webp"})
+    IMAGE_SLOTS.append({"slot": "shared-hero", "page": page, "subject": "Sewage cleanup crew / NRH emergency response", "aspect": "21:9", "suggested": "assets/images/shared-hero.webp"})
     hero = f'''<section class="hero">
-    <div class="hero-media img-placeholder" data-image-slot="home-hero-crew" data-image-path="assets/images/home-hero-crew.webp" role="img" aria-label="Sewage cleanup crew">
-      <div>Hero: sewage cleanup crew / NRH<small>Image needed · 21:9 · assets/images/home-hero-crew.webp</small></div>
+    <div class="hero-media img-placeholder" data-image-slot="shared-hero" data-image-path="assets/images/shared-hero.webp" role="img" aria-label="Sewage cleanup crew">
+      <div>Hero: sewage cleanup crew / NRH<small>Image needed · 21:9 · assets/images/shared-hero.webp</small></div>
     </div>
     <div class="hero-shade"></div>
     <div class="shell hero-layout">
@@ -61,7 +61,7 @@ def build_home(doc: dict, meta: dict) -> str:
     about1 = f'''<section class="section about-section" id="about">
     <div class="shell split-layout">
       <div class="image-stack">
-        {placeholder("About: tech inspecting sewage damage", "home-about-stack", page, "Technician inspecting sewage damage in NRH home", "4:5", "420px")}
+        {placeholder("About: tech inspecting sewage damage", "shared-portrait", page, "Technician inspecting sewage damage in NRH home", "4:5", "420px")}
         <div class="image-caption">Real technicians. Real accountability.</div>
       </div>
       <div class="section-copy">
@@ -92,9 +92,10 @@ def build_home(doc: dict, meta: dict) -> str:
         ("08", "/sewage-odor-removal/", "Sewage Odor Removal", "Getting rid of the smell for good—not covering it."),
         ("09", "/sewage-damage-restoration/", "Damage Restoration", "Replacing drywall, flooring, baseboards and cabinets after cleanup."),
     ]
+    feat_card_files = ["shared-card-backup", "shared-card-emergency", "shared-card-toilet"]
     feat_cards = []
     for i, (href, name, badge, desc) in enumerate(featured):
-        slot = f"home-service-{i+1}"
+        slot = feat_card_files[i]
         feat_cards.append(f'''<article class="service-card{' service-card-featured' if i==0 else ''}">
           {placeholder(name, slot, page, f"{name} in NRH", "4:3", "100%")}
           <div class="service-overlay"><span>{esc(badge)}</span><h3>{esc(name)}</h3><p>{esc(desc)}</p><a href="{href}">Explore <b>→</b></a></div>
@@ -165,7 +166,7 @@ def build_home(doc: dict, meta: dict) -> str:
     about2 = f'''<section class="section about-section">
     <div class="shell split-layout">
       <div class="image-stack">
-        {placeholder("What matters: containment setup", "home-what-matters", page, "Containment and PPE during sewage cleanup", "4:5", "420px")}
+        {placeholder("What matters: containment setup", "shared-portrait-ppe", page, "Containment and PPE during sewage cleanup", "4:5", "420px")}
         <div class="image-caption">Stop the spread. Then clean it right.</div>
       </div>
       <div class="section-copy">
@@ -187,10 +188,10 @@ def build_home(doc: dict, meta: dict) -> str:
             ("Removal", "Cut out porous materials that cannot be saved."),
             ("Disinfection", "Scrub and treat remaining surfaces with EPA-registered disinfectant."),
         ]
-    process_html = process_section("Our Cleanup Process", steps[:5], page, "home-process")
+    process_html = process_section("Our Cleanup Process", steps[:5], page)
 
     emergency = f'''<section class="emergency-banner">
-    {placeholder("Emergency banner background", "home-emergency-banner", page, "Emergency sewage response vehicle / crew", "21:9", "100%")}
+    {placeholder("Emergency banner background", "shared-hero-emergency", page, "Emergency sewage response vehicle / crew", "21:9", "100%")}
     <div class="shell emergency-inner">
       <div class="emergency-card">
         <span class="eyebrow eyebrow-light"><span></span> 24/7 emergency response</span>

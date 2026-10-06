@@ -12,6 +12,19 @@ from chrome import (
     placeholder, process_section, location_hero, related_services,
 )
 
+DETAIL_FILES = [
+    "shared-detail-extraction",
+    "shared-detail-removal",
+    "shared-detail-disinfect",
+    "shared-detail-drying",
+]
+
+CARD_MAP = {
+    "sewage-backup-cleanup": "shared-card-backup",
+    "emergency-sewage-cleanup": "shared-card-emergency",
+    "toilet-overflow-cleanup": "shared-card-toilet",
+}
+
 
 def build_service(doc: dict, meta: dict, url: str) -> str:
     page = url.strip("/").replace("/", "-") or "service"
@@ -31,7 +44,7 @@ def build_service(doc: dict, meta: dict, url: str) -> str:
     hero = location_hero(
         title, lead or (intro_paras[0] if intro_paras else ""),
         [("/", "Home"), ("/services/", "Services"), ("", short)],
-        "Category 3 sewage cleanup", page, f"service-hero-{page}",
+        "Category 3 sewage cleanup", page,
     )
 
     about_sec = sections[0] if sections else None
@@ -43,7 +56,7 @@ def build_service(doc: dict, meta: dict, url: str) -> str:
     ]
     about_html = f'''<section class="section about-section">
       <div class="shell split-layout">
-        <div class="image-stack">{placeholder("Service detail photo", f"service-about-{page}", page, f"{title} work in progress", "4:5", "420px")}<div class="image-caption">Careful work. Honest options.</div></div>
+        <div class="image-stack">{placeholder("Service detail photo", "shared-portrait", page, f"{title} work in progress", "4:5", "420px")}<div class="image-caption">Careful work. Honest options.</div></div>
         <div class="section-copy">
           <span class="eyebrow"><span></span> About this service</span>
           <h2>{esc(about_h2)}</h2>
@@ -91,7 +104,7 @@ def build_service(doc: dict, meta: dict, url: str) -> str:
             ("Remove & disinfect", "Pull porous materials and sanitize what remains."),
             ("Dry & restore", "Dry to target moisture, then rebuild as needed."),
         ]
-    process_html = process_section(proc_sec["heading"] if proc_sec else "How This Service Works", steps[:5], page, f"service-process-{page}")
+    process_html = process_section(proc_sec["heading"] if proc_sec else "How This Service Works", steps[:5], page)
 
     detail_secs = [s for s in sections if s is not about_sec and s is not includes_sec and s is not proc_sec]
     details_html = ""
@@ -102,7 +115,7 @@ def build_service(doc: dict, meta: dict, url: str) -> str:
             reverse = " city-service-row-reverse" if i % 2 else ""
             rows.append(
                 f'<article class="city-service-row{reverse}"><div class="city-service-media">'
-                f'{placeholder(sec["heading"], f"service-detail-{page}-{i}", page, sec["heading"], "16:9", "280px")}</div>'
+                f'{placeholder(sec["heading"], DETAIL_FILES[i % 4], page, sec["heading"], "16:9", "280px")}</div>'
                 f'<div><span class="eyebrow"><span></span> Details</span><h3>{esc(sec["heading"])}</h3>'
                 f'{"".join(f"<p>{inline_md(p)}</p>" for p in paras[:3])}'
                 f'<a class="text-link" href="tel:{PHONE_TEL}">Book this service →</a></div></article>'
@@ -143,7 +156,7 @@ def build_services_index(doc: dict, meta: dict) -> str:
     sections, faqs = extract_faqs(doc["sections"])
     title = doc["title"] or "Sewage Cleanup Services"
     lead = first_paragraph(doc["intro"]) or "Find the right sewage cleanup service for your situation."
-    hero = location_hero(title, lead, [("/", "Home"), ("", "Services")], "Full service list", page, "services-hero")
+    hero = location_hero(title, lead, [("/", "Home"), ("", "Services")], "Full service list", page)
 
     all_svcs = [
         ("/sewage-backup-cleanup/", "Sewage Backup Cleanup"),
@@ -161,8 +174,10 @@ def build_services_index(doc: dict, meta: dict) -> str:
     ]
     feat = []
     for i, (href, label) in enumerate(all_svcs[:3]):
+        slug = href.strip("/").split("/")[-1]
+        card_file = CARD_MAP.get(slug, "shared-process")
         feat.append(f'''<article class="service-card{' service-card-featured' if i==0 else ''}" style="min-height:220px;">
-          {placeholder(label, f"services-card-{href.strip('/').split('/')[-1]}", page, label, "4:3", "100%")}
+          {placeholder(label, card_file, page, label, "4:3", "100%")}
           <div class="service-overlay"><span>NRH</span><h3>{esc(label)}</h3><p>Category 3 sewage cleanup in North Richland Hills.</p><a href="{href}">Explore <b>→</b></a></div>
         </article>''')
 
@@ -186,7 +201,7 @@ def build_services_index(doc: dict, meta: dict) -> str:
     ]
     body = "\n".join(filter(None, [
         hero, trust_strip(), guide, grid,
-        process_section("How Every Job Works", steps, page, "services-process"),
+        process_section("How Every Job Works", steps, page),
         f'''<section class="section why-section"><div class="shell"><div class="section-heading heading-split"><div><span class="eyebrow"><span></span> Our standard</span><h2>One call, the right scope</h2></div><p>Most jobs include extraction, removal, disinfection, drying, and odor control in one visit.</p></div>
         <div class="benefit-grid">
           <article><span class="benefit-number">01</span><div class="mini-icon">☎</div><h3>Not sure which service?</h3><p>Call <span class="phone-nowrap">{PHONE_DISPLAY}</span>. Most calls start as sewage backup cleanup.</p></article>
@@ -206,7 +221,7 @@ def build_areas_index(doc: dict, meta: dict) -> str:
     sections, faqs = extract_faqs(doc["sections"])
     title = doc["title"] or "Areas We Serve"
     lead = first_paragraph(doc["intro"]) or f"Sewage cleanup across every {CITY} neighborhood."
-    hero = location_hero(title, lead, [("/", "Home"), ("", "Areas")], "Service Areas", page, "areas-hero")
+    hero = location_hero(title, lead, [("/", "Home"), ("", "Areas")], "Service Areas", page)
 
     region_html = []
     for sec in sections:
@@ -261,7 +276,7 @@ def build_area(doc: dict, meta: dict, url: str) -> str:
 
     hero = location_hero(
         title, lead, [("/", "Home"), ("/areas/", "Areas"), ("", name)],
-        f"Your local {name} sewage cleanup team", page, f"area-hero-{page}", snapshot=snapshot,
+        f"Your local {name} sewage cleanup team", page, snapshot=snapshot,
     )
     trust = f'''<section class="location-trust"><div class="shell location-trust-inner">
       <div><strong>24/7</strong><span>Emergency service</span></div>
@@ -302,7 +317,7 @@ def build_area(doc: dict, meta: dict, url: str) -> str:
         paras = paragraphs(sec["blocks"])
         lists = all_list_items(sec["blocks"])
         detail_html_parts.append(f'''<article class="city-service-row{' city-service-row-reverse' if i%2 else ''}">
-          <div class="city-service-media">{placeholder(sec["heading"], f"area-detail-{page}-{i}", page, f"{name}: {sec['heading']}", "16:9", "260px")}</div>
+          <div class="city-service-media">{placeholder(sec["heading"], DETAIL_FILES[i % 4], page, f"{name}: {sec['heading']}", "16:9", "260px")}</div>
           <div><span class="eyebrow"><span></span> In {esc(name)}</span><h3>{esc(sec["heading"])}</h3>
           {"".join(f"<p>{inline_md(p)}</p>" for p in paras[:3])}
           {"<ul class='check-list'>" + "".join(f'<li><span>✓</span> <span class="check-text">{inline_md(x)}</span></li>' for x in lists[:5]) + "</ul>" if lists else ""}
@@ -331,7 +346,7 @@ def build_about(doc: dict, meta: dict) -> str:
     sections, faqs = extract_faqs(doc["sections"])
     title = doc["title"] or "About Us"
     lead = first_paragraph(doc["intro"]) or ""
-    hero = location_hero(title, lead, [("/", "Home"), ("", "About")], "Our story", page, "about-hero")
+    hero = location_hero(title, lead, [("/", "Home"), ("", "About")], "Our story", page)
 
     checks = []
     for sec in sections:
@@ -342,7 +357,7 @@ def build_about(doc: dict, meta: dict) -> str:
     ]
     about_paras = paragraphs(doc["intro"]) + (paragraphs(sections[0]["blocks"]) if sections else [])
     about_html = f'''<section class="section about-section"><div class="shell split-layout">
-      <div class="image-stack">{placeholder("About team / truck", "about-team", page, "Sewage Fix Pros crew and response vehicle", "4:5", "420px")}<div class="image-caption">One city. One specialty.</div></div>
+      <div class="image-stack">{placeholder("About team / truck", "shared-portrait", page, "Sewage Fix Pros crew and response vehicle", "4:5", "420px")}<div class="image-caption">One city. One specialty.</div></div>
       <div class="section-copy">
         <span class="eyebrow"><span></span> Who we are</span>
         <h2>{esc(sections[0]["heading"] if sections else "Why We Only Work in NRH")}</h2>
@@ -373,7 +388,7 @@ def build_contact(doc: dict, meta: dict) -> str:
     sections, faqs = extract_faqs(doc["sections"])
     title = doc["title"] or "Contact Us"
     lead = f"Phone is the fastest way to get help. We answer 24 hours a day at {PHONE_DISPLAY}."  # wrapped via location_hero/inline_md
-    hero = location_hero(title, lead, [("/", "Home"), ("", "Contact")], "Call anytime", page, "contact-hero")
+    hero = location_hero(title, lead, [("/", "Home"), ("", "Contact")], "Call anytime", page)
 
     steps = []
     for sec in sections:
@@ -412,6 +427,6 @@ def build_legal(doc: dict, meta: dict, url: str) -> str:
         parts.append({"type": "heading", "level": 2, "text": sec["heading"]})
         parts.extend(sec["blocks"])
     prose = blocks_to_html(parts)
-    hero = location_hero(title, phone_sub(meta.get("meta_description", "")), [("/", "Home"), ("", title)], "Legal", page, f"legal-hero-{page}", show_actions=False)
+    hero = location_hero(title, phone_sub(meta.get("meta_description", "")), [("/", "Home"), ("", title)], "Legal", page, show_actions=False)
     body = hero + f'<section class="section"><div class="shell prose-content">{prose}</div></section>' + cta_band("Questions?", f"Call {PHONE_DISPLAY}.")
     return shell_page(meta, url, body)
